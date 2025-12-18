@@ -2,6 +2,7 @@ import streamlit as st
 import joblib
 import numpy as np
 import os
+import gdown
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -10,11 +11,8 @@ st.set_page_config(
     layout="centered"
 )
 
-# ---------------- LOAD MODEL ----------------
-import gdown
-import os
-
-MODEL_URL = "https://drive.google.com/file/d/1lxFCaIyHLbYa10TD2QzN2NCw9F4JGe91/view?usp=drive_link"
+# ---------------- MODEL CONFIG ----------------
+MODEL_URL = "https://drive.google.com/uc?id=1lxFCaIyHLbYa10TD2QzN2NCw9F4JGe91"
 MODEL_PATH = "gold_price_model.pkl"
 
 @st.cache_resource
@@ -23,40 +21,38 @@ def load_model():
         gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
     return joblib.load(MODEL_PATH)
 
-MODEL_PATH = "gold_price_model.pkl"
-
-@st.cache_resource
-def load_model():
-    if not os.path.exists(MODEL_PATH):
-        gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
-    return joblib.load(MODEL_PATH)
+# ✅ MODEL IS CREATED HERE (VERY IMPORTANT)
+model = load_model()
 
 # ---------------- CUSTOM CSS ----------------
-st.markdown("""
-<style>
-body {
-    background-color: #0e1117;
-}
-.main {
-    background-color: #0e1117;
-}
-h1, h2, h3, h4 {
-    color: #FFD700;
-}
-.stButton>button {
-    background-color: #FFD700;
-    color: black;
-    border-radius: 8px;
-    height: 45px;
-    font-size: 16px;
-}
-.stMetric {
-    background-color: #1c1f26;
-    padding: 15px;
-    border-radius: 10px;
-}
-</style>
-""", unsafe_allow_html=True)
+st.markdown(
+    """
+    <style>
+    body {
+        background-color: #0e1117;
+    }
+    .main {
+        background-color: #0e1117;
+    }
+    h1, h2, h3, h4 {
+        color: #FFD700;
+    }
+    .stButton>button {
+        background-color: #FFD700;
+        color: black;
+        border-radius: 8px;
+        height: 45px;
+        font-size: 16px;
+    }
+    .stMetric {
+        background-color: #1c1f26;
+        padding: 15px;
+        border-radius: 10px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # ---------------- TITLE ----------------
 st.title("💰 Gold Price Prediction App")
@@ -79,10 +75,10 @@ if st.button("Predict Gold Price"):
     try:
         prediction = model.predict(input_data)[0]
         st.success("✅ Prediction Successful")
-        st.metric(label="Predicted Gold Price", value=f"₹ {prediction:,.2f}")
+        st.metric("Predicted Gold Price", f"₹ {prediction:,.2f}")
     except Exception as e:
         st.error("❌ Error while predicting")
-        st.write(e)
+        st.exception(e)
 
 # ---------------- FOOTER ----------------
 st.markdown("---")
