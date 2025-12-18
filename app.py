@@ -1,6 +1,7 @@
 import streamlit as st
 import joblib
 import numpy as np
+import os
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -9,62 +10,67 @@ st.set_page_config(
     layout="centered"
 )
 
-# ---------------- CUSTOM CSS (DARK UI) ----------------
+# ---------------- LOAD MODEL ----------------
+@st.cache_resource
+def load_model():
+    model_path = os.path.join("model", "gold_price_model.pkl")
+    return joblib.load(model_path)
+
+model = load_model()
+
+# ---------------- CUSTOM CSS ----------------
 st.markdown("""
 <style>
 body {
     background-color: #0e1117;
-    color: white;
 }
 .main {
     background-color: #0e1117;
 }
-.stButton>button {
-    background-color: #f0b90b;
-    color: black;
-    border-radius: 10px;
-    height: 45px;
-    width: 100%;
-    font-size: 18px;
-    font-weight: bold;
+h1, h2, h3, h4 {
+    color: #FFD700;
 }
-.stNumberInput>div>div>input {
-    background-color: #1e222d;
-    color: white;
+.stButton>button {
+    background-color: #FFD700;
+    color: black;
+    border-radius: 8px;
+    height: 45px;
+    font-size: 16px;
+}
+.stMetric {
+    background-color: #1c1f26;
+    padding: 15px;
+    border-radius: 10px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ---------------- LOAD MODEL ----------------
-@st.cache_resource
-def load_model():
-    return joblib.load("gold_price_model.pkl")
+# ---------------- TITLE ----------------
+st.title("💰 Gold Price Prediction App")
+st.write("Predict gold prices using a Machine Learning model")
 
-model = load_model()
+# ---------------- SIDEBAR ----------------
+st.sidebar.header("🔢 Input Parameters")
 
-# ---------------- HEADER ----------------
-st.markdown("<h1 style='text-align: center;'>💰 Gold Price Prediction App</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center;'>Predict gold prices using Machine Learning</p>", unsafe_allow_html=True)
-st.markdown("---")
+open_price = st.sidebar.number_input("Open Price", min_value=0.0, step=1.0)
+high_price = st.sidebar.number_input("High Price", min_value=0.0, step=1.0)
+low_price = st.sidebar.number_input("Low Price", min_value=0.0, step=1.0)
+volume = st.sidebar.number_input("Volume", min_value=0.0, step=1.0)
 
-# ---------------- INPUTS ----------------
-st.subheader("📊 Enter Market Details")
+# ---------------- MAIN ----------------
+st.subheader("📊 Enter Values and Predict")
 
-feature1 = st.number_input("Gold Open Price", min_value=0.0, format="%.2f")
-feature2 = st.number_input("Gold High Price", min_value=0.0, format="%.2f")
-feature3 = st.number_input("Gold Low Price", min_value=0.0, format="%.2f")
-feature4 = st.number_input("Gold Volume", min_value=0.0, format="%.2f")
+input_data = np.array([[open_price, high_price, low_price, volume]])
 
-# ---------------- PREDICTION ----------------
-if st.button("🔮 Predict Gold Price"):
-    input_data = np.array([[feature1, feature2, feature3, feature4]])
-    prediction = model.predict(input_data)
-
-    st.success(f"💵 Predicted Gold Price: ₹ {prediction[0]:,.2f}")
+if st.button("Predict Gold Price"):
+    try:
+        prediction = model.predict(input_data)[0]
+        st.success("✅ Prediction Successful")
+        st.metric(label="Predicted Gold Price", value=f"₹ {prediction:,.2f}")
+    except Exception as e:
+        st.error("❌ Error while predicting")
+        st.write(e)
 
 # ---------------- FOOTER ----------------
 st.markdown("---")
-st.markdown(
-    "<p style='text-align:center; font-size:14px;'>Built with ❤️ using Streamlit & Machine Learning</p>",
-    unsafe_allow_html=True
-)
+st.caption("Developed by Sharim | ML & Streamlit Project")
