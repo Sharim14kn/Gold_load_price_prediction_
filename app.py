@@ -1,104 +1,70 @@
 import streamlit as st
-import numpy as np
 import joblib
+import numpy as np
 
-# -------------------- PAGE CONFIG --------------------
+# ---------------- PAGE CONFIG ----------------
 st.set_page_config(
-    page_title="Gold Loan Price Prediction",
+    page_title="Gold Price Prediction",
     page_icon="💰",
     layout="centered"
 )
 
-# -------------------- LOAD MODEL --------------------
+# ---------------- CUSTOM CSS (DARK UI) ----------------
+st.markdown("""
+<style>
+body {
+    background-color: #0e1117;
+    color: white;
+}
+.main {
+    background-color: #0e1117;
+}
+.stButton>button {
+    background-color: #f0b90b;
+    color: black;
+    border-radius: 10px;
+    height: 45px;
+    width: 100%;
+    font-size: 18px;
+    font-weight: bold;
+}
+.stNumberInput>div>div>input {
+    background-color: #1e222d;
+    color: white;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# ---------------- LOAD MODEL ----------------
 @st.cache_resource
 def load_model():
     return joblib.load("gold_price_model.pkl")
 
 model = load_model()
 
-# -------------------- CUSTOM CSS --------------------
-st.markdown("""
-<style>
-body {
-    background-color: #0f172a;
-}
-.main {
-    background-color: #0f172a;
-}
-.card {
-    background-color: #020617;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0px 0px 20px rgba(255, 215, 0, 0.15);
-    margin-top: 20px;
-}
-.title {
-    text-align: center;
-    color: #facc15;
-}
-.subtitle {
-    text-align: center;
-    color: #cbd5e1;
-}
-.result {
-    font-size: 28px;
-    font-weight: bold;
-    color: #22c55e;
-    text-align: center;
-}
-</style>
-""", unsafe_allow_html=True)
+# ---------------- HEADER ----------------
+st.markdown("<h1 style='text-align: center;'>💰 Gold Price Prediction App</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Predict gold prices using Machine Learning</p>", unsafe_allow_html=True)
+st.markdown("---")
 
-# -------------------- HEADER --------------------
-st.markdown("<h1 class='title'>💰 Gold Loan Price Prediction</h1>", unsafe_allow_html=True)
-st.markdown("<p class='subtitle'>Machine Learning based Gold Value Estimator</p>", unsafe_allow_html=True)
+# ---------------- INPUTS ----------------
+st.subheader("📊 Enter Market Details")
 
-# -------------------- SIDEBAR INPUT --------------------
-st.sidebar.header("🔧 Enter Details")
+feature1 = st.number_input("Gold Open Price", min_value=0.0, format="%.2f")
+feature2 = st.number_input("Gold High Price", min_value=0.0, format="%.2f")
+feature3 = st.number_input("Gold Low Price", min_value=0.0, format="%.2f")
+feature4 = st.number_input("Gold Volume", min_value=0.0, format="%.2f")
 
-gold_weight = st.sidebar.number_input(
-    "Gold Weight (grams)",
-    min_value=1.0,
-    max_value=1000.0,
-    step=0.5
+# ---------------- PREDICTION ----------------
+if st.button("🔮 Predict Gold Price"):
+    input_data = np.array([[feature1, feature2, feature3, feature4]])
+    prediction = model.predict(input_data)
+
+    st.success(f"💵 Predicted Gold Price: ₹ {prediction[0]:,.2f}")
+
+# ---------------- FOOTER ----------------
+st.markdown("---")
+st.markdown(
+    "<p style='text-align:center; font-size:14px;'>Built with ❤️ using Streamlit & Machine Learning</p>",
+    unsafe_allow_html=True
 )
-
-gold_purity = st.sidebar.selectbox(
-    "Gold Purity (Carat)",
-    [18, 20, 22, 24]
-)
-
-interest_rate = st.sidebar.slider(
-    "Interest Rate (%)",
-    min_value=5.0,
-    max_value=25.0,
-    step=0.5
-)
-
-loan_tenure = st.sidebar.slider(
-    "Loan Tenure (Months)",
-    min_value=3,
-    max_value=36
-)
-
-# -------------------- PREDICTION --------------------
-if st.sidebar.button("🔮 Predict Gold Loan Value"):
-    try:
-        input_data = np.array([[gold_weight, gold_purity, interest_rate, loan_tenure]])
-        prediction = model.predict(input_data)[0]
-
-        st.markdown("<div class='card'>", unsafe_allow_html=True)
-        st.markdown("<h3 class='subtitle'>Estimated Loan Amount</h3>", unsafe_allow_html=True)
-        st.markdown(f"<div class='result'>₹ {prediction:,.2f}</div>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    except Exception as e:
-        st.error(f"❌ Error occurred: {e}")
-
-# -------------------- FOOTER --------------------
-st.markdown("""
-<hr>
-<p style="text-align:center; color:#94a3b8;">
-Developed using Streamlit & Machine Learning 🚀
-</p>
-""", unsafe_allow_html=True)
