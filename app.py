@@ -11,12 +11,28 @@ st.set_page_config(
 )
 
 # ---------------- LOAD MODEL ----------------
+import gdown
+import os
+
+MODEL_URL = "import gdown
+import os
+
+MODEL_URL = "https://drive.google.com/file/d/1lxFCaIyHLbYa10TD2QzN2NCw9F4JGe91/view?usp=drive_link"
+MODEL_PATH = "gold_price_model.pkl"
+
 @st.cache_resource
 def load_model():
-    model_path = os.path.join("model", "gold_price_model.pkl")
-    return joblib.load(model_path)
+    if not os.path.exists(MODEL_PATH):
+        gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
+    return joblib.load(MODEL_PATH)
+"
+MODEL_PATH = "gold_price_model.pkl"
 
-model = load_model()
+@st.cache_resource
+def load_model():
+    if not os.path.exists(MODEL_PATH):
+        gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
+    return joblib.load(MODEL_PATH)
 
 # ---------------- CUSTOM CSS ----------------
 st.markdown("""
