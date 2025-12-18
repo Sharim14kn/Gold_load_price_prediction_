@@ -14,9 +14,6 @@ st.set_page_config(
 import gdown
 import os
 
-MODEL_URL = "import gdown
-import os
-
 MODEL_URL = "https://drive.google.com/file/d/1lxFCaIyHLbYa10TD2QzN2NCw9F4JGe91/view?usp=drive_link"
 MODEL_PATH = "gold_price_model.pkl"
 
