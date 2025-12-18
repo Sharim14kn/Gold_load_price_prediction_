@@ -22,7 +22,7 @@ def load_model():
     if not os.path.exists(MODEL_PATH):
         gdown.download(MODEL_URL, MODEL_PATH, quiet=False)
     return joblib.load(MODEL_PATH)
-"
+
 MODEL_PATH = "gold_price_model.pkl"
 
 @st.cache_resource
